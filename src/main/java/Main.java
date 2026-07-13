@@ -17,11 +17,11 @@ public class Main {
        // ensures that we don't run into 'Address already in use' errors
        serverSocket.setReuseAddress(true);
        Socket socket = serverSocket.accept();
-//       OutputStream outputStream = socket.getOutputStream();
-//       String response = "HTTP/1.1 200 OK\r\n\r\n";
-//       outputStream.write(response.getBytes());
-//       outputStream.flush();
-//       outputStream.close();
+       OutputStream outputStream = socket.getOutputStream();
+       String response = "HTTP/1.1 200 OK\r\n\r\n";
+       outputStream.write(response.getBytes());
+       outputStream.flush();
+       outputStream.close();
        // Wait for connection from client.
        System.out.println("accepted new connection");
      } catch (IOException e) {
