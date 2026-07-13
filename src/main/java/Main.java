@@ -17,14 +17,24 @@ public class Main {
        String header = reader.readLine();
        String[] headerComponents = header.split(" ");
        String status;
-       if((headerComponents[1]).equals("/")){
+       String message;
+       if((headerComponents[1].startsWith("/echo/"))){
+           message = headerComponents[1].substring("/echo/".length());
            status = "200 OK";
        }
        else{
+           message = "";
            status = "404 Not Found";
        }
        OutputStream outputStream = socket.getOutputStream();
-       String response = String.format("HTTP/1.1 %s\r\n\r\n",status);
+       String response;
+       String typeOfMessage = "text/plain";
+       if(!message.isEmpty()){
+           response = String.format("HTTP/1.1 %s\r\nContent-Type: %s\r\nContent-Length: %s\r\n\r\n%s",status,typeOfMessage,String.valueOf(message.length()),message);
+       }
+       else{
+           response = String.format("HTTP/1.1 %s\r\n\r\n");
+       }
        outputStream.write(response.getBytes());
        outputStream.flush();
        outputStream.close();
