@@ -8,41 +8,55 @@ public class Router {
     }
     public HttpResponse route(){
         HttpResponse response = new HttpResponse();
-        if(request.getPath().equals("/")){
-            response.setStatus("200 OK");
-        }
-        else if (request.getPath().startsWith("/echo/")) {
-            String echoStr = request.getPath().substring("/echo/".length());
-            response.setStatus("200 OK");
-            response.setHeaders("Content-Type", "text/plain");
-            response.setHeaders("Content-Length", Integer.toString(echoStr.length()));
-            response.setBody(echoStr.getBytes(StandardCharsets.UTF_8));
-        }
-        else if(request.getPath().startsWith("/user-agent")){
-            response.setStatus("200 OK");
-            response.setHeaders("Content-Type","text/plain");
-            response.setHeaders("Content-Length",Integer.toString(request.getHeader("User-Agent").length()));
-            response.setBody(request.getHeader("User-Agent").getBytes(StandardCharsets.UTF_8));
-        }
-        else if(request.getPath().startsWith("/files")){
-            String fileName = request.getPath().substring("/files/".length());
-            String dirPath = request.getDirectory().orElse(".");
-            FileOperator opr = new FileOperator(dirPath, fileName);
-            if(opr.doesExist()){
-                response.setStatus("200 OK");
-                byte[] content = opr.getFileContent().getBytes();
-                response.setHeaders("Content-Type", "application/octet-stream");
-                response.setHeaders("Content-Length", Integer.toString(content.length));
-                response.setBody(content);
-            }
-            else{
-                response.setStatus("404 Not Found");
-            }
-        }
-        else{
-            response.setStatus("404 Not Found");
+        switch(request.getMethod()){
+            case "GET" :
+                if(request.getPath().equals("/")){
+                    response.setStatus("200 OK");
+                }
+                else if (request.getPath().startsWith("/echo/")) {
+                    String echoStr = request.getPath().substring("/echo/".length());
+                    response.setStatus("200 OK");
+                    response.setHeaders("Content-Type", "text/plain");
+                    response.setHeaders("Content-Length", Integer.toString(echoStr.length()));
+                    response.setBody(echoStr.getBytes(StandardCharsets.UTF_8));
+                }
+                else if(request.getPath().startsWith("/user-agent")){
+                    response.setStatus("200 OK");
+                    response.setHeaders("Content-Type","text/plain");
+                    response.setHeaders("Content-Length",Integer.toString(request.getHeader("User-Agent").length()));
+                    response.setBody(request.getHeader("User-Agent").getBytes(StandardCharsets.UTF_8));
+                }
+                else if(request.getPath().startsWith("/files")){
+                    String fileName = request.getPath().substring("/files/".length());
+                    String dirPath = request.getDirectory().orElse(".");
+                    FileOperator opr = new FileOperator(dirPath, fileName);
+                    if(opr.doesExist()){
+                        response.setStatus("200 OK");
+                        byte[] content = opr.getFileContent().getBytes();
+                        response.setHeaders("Content-Type", "application/octet-stream");
+                        response.setHeaders("Content-Length", Integer.toString(content.length));
+                        response.setBody(content);
+                    }
+                    else{
+                        response.setStatus("404 Not Found");
+                    }
+                }
+                else{
+                    response.setStatus("404 Not Found");
+                }
+                break;
+            case "POST":
+                if (request.getPath().startsWith("/files/")) {
+                    String fileName = request.getPath().substring("/files/".length());
+                    String dirPath = request.getDirectory().orElse(".");
+                    FileOperator opr = new FileOperator(dirPath, fileName);
+                    opr.writeToFile(new String(request.getBody(), StandardCharsets.UTF_8));
+                    response.setStatus("201 Created");
+                } else {
+                    response.setStatus("404 Not Found");
+                }
+                break;
         }
         return response;
     }
-
 }

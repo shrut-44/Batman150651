@@ -19,4 +19,11 @@ public class FileOperator {
             throw new RuntimeException(e);
         }
     }
+    public void writeToFile(String content){
+        try{
+            Files.writeString(fullPath, content);
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+    }
 }
